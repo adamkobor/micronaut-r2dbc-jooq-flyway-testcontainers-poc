@@ -1,0 +1,26 @@
+micronaut:
+  application:
+    name: micronautR2dbcDemo
+netty:
+  default:
+    allocator:
+      max-order: 3
+flyway:
+  datasources:
+    default:
+      enabled: true
+      default-schema: r2dbc-poc
+      url: 'jdbc:postgresql://localhost:5432/postgres'
+      username: postgres
+      password: ${DB_PASSWORD:`pass`}
+r2dbc:
+  datasources:
+    default:
+      url: 'r2dbc:postgresql://localhost:5432/postgres'
+      username: postgres
+      password: ${DB_PASSWORD:`pass`}
+jackson:
+  bean-introspection-module: true
+  serialization-inclusion: always
+  serialization:
+    - WRITE_DATES_AS_TIMESTAMPS: false
