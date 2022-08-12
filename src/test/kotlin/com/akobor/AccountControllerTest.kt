@@ -1,15 +1,18 @@
 package com.akobor
 
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.inspectors.forNone
 import io.kotest.inspectors.forOne
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.micronaut.http.client.annotation.Client
+import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.kotest.annotation.MicronautTest
 import java.time.LocalDateTime
 
 @MicronautTest
-class AccountControllerTest(accountClient: AccountClient) : DatabaseStringSpec({
+class AccountControllerTest(accountClient: AccountClient, accountRepository: AccountRepository) : DatabaseStringSpec({
 
     "getting all the accounts from the DB should work E2E" {
 
@@ -55,6 +58,21 @@ class AccountControllerTest(accountClient: AccountClient) : DatabaseStringSpec({
         createdAccountWithoutAddress.name shouldBe accountWithoutAddress.name
         createdAccountWithoutAddress.fullAddress shouldBe null
         createdAccountWithoutAddress.deletedAt shouldBe null
+    }
+
+    "if something bad happens during an account creation, it should be rolled back " {
+
+        val accountToCreate = AccountCreateDto(
+            name = "Test Person 1",
+            fullAddress = "Some address".repeat(100), // We pass a very long string to force a DB related exception
+            deletedAt = LocalDateTime.now()
+        )
+
+        shouldThrow<HttpClientResponseException> { accountClient.createAccount(accountToCreate).block() }
+
+        val accountsInTheDb = accountRepository.getAccounts().collectList().block()!!
+
+        accountsInTheDb.forNone { it.name shouldBe accountToCreate.name }
     }
 })
 
