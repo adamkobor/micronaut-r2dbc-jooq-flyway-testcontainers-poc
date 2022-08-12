@@ -29,8 +29,9 @@ class AccountRepository(private val ctx: DSLContext) {
 
     fun insertAccountWithAddress(accountWithAddressDto: AccountCreateDto): Mono<AccountDetailsWithAddress> =
         // We initiate a transaction with jOOQ's new reactive transaction API
-        ctx.transactionPublisher { trx ->
-            trx.dsl().insertInto(ACCOUNT)
+        Flux.from(ctx.transactionPublisher { trx ->
+            trx.dsl()
+                .insertInto(ACCOUNT)
                 .columns(ACCOUNT.NAME, ACCOUNT.DELETED_AT)
                 .values(accountWithAddressDto.name, accountWithAddressDto.deletedAt)
                 .returningResult(ACCOUNT.ID)
@@ -43,5 +44,5 @@ class AccountRepository(private val ctx: DSLContext) {
                             .returningResult(ADDRESS.ACCOUNT_ID).toMono()
                     } else insertedAccount.toMono()
                 }.flatMap { insertedAccount -> getAccount(insertedAccount.value1()!!, trx.dsl()) }
-        }.toMono()
+        }).single()
 }
