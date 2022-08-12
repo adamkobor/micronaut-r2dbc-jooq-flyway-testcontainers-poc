@@ -8,14 +8,17 @@ import com.akobor.r2dbcdemo.keys.ACCOUNT_PKEY
 import com.akobor.r2dbcdemo.tables.records.AccountRecord
 
 import java.time.LocalDateTime
+import java.util.function.Function
 
 import org.jooq.Field
 import org.jooq.ForeignKey
 import org.jooq.Identity
 import org.jooq.Name
 import org.jooq.Record
+import org.jooq.Records
 import org.jooq.Row3
 import org.jooq.Schema
+import org.jooq.SelectField
 import org.jooq.Table
 import org.jooq.TableField
 import org.jooq.TableOptions
@@ -98,6 +101,7 @@ open class Account(
     override fun getPrimaryKey(): UniqueKey<AccountRecord> = ACCOUNT_PKEY
     override fun `as`(alias: String): Account = Account(DSL.name(alias), this)
     override fun `as`(alias: Name): Account = Account(alias, this)
+    override fun `as`(alias: Table<*>): Account = Account(alias.getQualifiedName(), this)
 
     /**
      * Rename this table
@@ -109,8 +113,24 @@ open class Account(
      */
     override fun rename(name: Name): Account = Account(name, null)
 
+    /**
+     * Rename this table
+     */
+    override fun rename(name: Table<*>): Account = Account(name.getQualifiedName(), null)
+
     // -------------------------------------------------------------------------
     // Row3 type methods
     // -------------------------------------------------------------------------
     override fun fieldsRow(): Row3<Long?, String?, LocalDateTime?> = super.fieldsRow() as Row3<Long?, String?, LocalDateTime?>
+
+    /**
+     * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
+     */
+    fun <U> mapping(from: (Long?, String?, LocalDateTime?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+
+    /**
+     * Convenience mapping calling {@link SelectField#convertFrom(Class,
+     * Function)}.
+     */
+    fun <U> mapping(toType: Class<U>, from: (Long?, String?, LocalDateTime?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
 }

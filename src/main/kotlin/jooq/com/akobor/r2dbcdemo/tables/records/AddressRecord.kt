@@ -7,15 +7,15 @@ package com.akobor.r2dbcdemo.tables.records
 import com.akobor.r2dbcdemo.tables.Address
 import com.akobor.r2dbcdemo.tables.pojos.AddressPojo
 
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.Index
-import javax.persistence.Table
-import javax.validation.constraints.NotNull
-import javax.validation.constraints.Size
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Index
+import jakarta.persistence.Table
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Size
 
 import org.jooq.Field
 import org.jooq.Record1
@@ -41,20 +41,20 @@ open class AddressRecord() : UpdatableRecordImpl<AddressRecord>(Address.ADDRESS)
     @get:Id
     @get:GeneratedValue(strategy = GenerationType.IDENTITY)
     @get:Column(name = "id", nullable = false, precision = 64)
-    var id: Long?
+    open var id: Long?
         set(value): Unit = set(0, value)
         get(): Long? = get(0) as Long?
 
     @get:Column(name = "account_id", nullable = false, precision = 64)
     @get:NotNull
-    var accountId: Long?
+    open var accountId: Long?
         set(value): Unit = set(1, value)
         get(): Long? = get(1) as Long?
 
     @get:Column(name = "full_address", nullable = false, length = 255)
     @get:NotNull
     @get:Size(max = 255)
-    var fullAddress: String?
+    open var fullAddress: String?
         set(value): Unit = set(2, value)
         get(): String? = get(2) as String?
 

@@ -9,6 +9,8 @@ import com.akobor.r2dbcdemo.keys.ADDRESS_PKEY
 import com.akobor.r2dbcdemo.keys.ADDRESS__ADDRESS_ACCOUNT_ID_FKEY
 import com.akobor.r2dbcdemo.tables.records.AddressRecord
 
+import java.util.function.Function
+
 import kotlin.collections.List
 
 import org.jooq.Field
@@ -17,8 +19,10 @@ import org.jooq.Identity
 import org.jooq.Index
 import org.jooq.Name
 import org.jooq.Record
+import org.jooq.Records
 import org.jooq.Row3
 import org.jooq.Schema
+import org.jooq.SelectField
 import org.jooq.Table
 import org.jooq.TableField
 import org.jooq.TableOptions
@@ -103,14 +107,22 @@ open class Address(
     override fun getReferences(): List<ForeignKey<AddressRecord, *>> = listOf(ADDRESS__ADDRESS_ACCOUNT_ID_FKEY)
 
     private lateinit var _account: Account
+
+    /**
+     * Get the implicit join path to the <code>r2dbc-poc.account</code> table.
+     */
     fun account(): Account {
         if (!this::_account.isInitialized)
             _account = Account(this, ADDRESS__ADDRESS_ACCOUNT_ID_FKEY)
 
         return _account;
     }
+
+    val account: Account
+        get(): Account = account()
     override fun `as`(alias: String): Address = Address(DSL.name(alias), this)
     override fun `as`(alias: Name): Address = Address(alias, this)
+    override fun `as`(alias: Table<*>): Address = Address(alias.getQualifiedName(), this)
 
     /**
      * Rename this table
@@ -122,8 +134,24 @@ open class Address(
      */
     override fun rename(name: Name): Address = Address(name, null)
 
+    /**
+     * Rename this table
+     */
+    override fun rename(name: Table<*>): Address = Address(name.getQualifiedName(), null)
+
     // -------------------------------------------------------------------------
     // Row3 type methods
     // -------------------------------------------------------------------------
     override fun fieldsRow(): Row3<Long?, Long?, String?> = super.fieldsRow() as Row3<Long?, Long?, String?>
+
+    /**
+     * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
+     */
+    fun <U> mapping(from: (Long?, Long?, String?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+
+    /**
+     * Convenience mapping calling {@link SelectField#convertFrom(Class,
+     * Function)}.
+     */
+    fun <U> mapping(toType: Class<U>, from: (Long?, Long?, String?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
 }

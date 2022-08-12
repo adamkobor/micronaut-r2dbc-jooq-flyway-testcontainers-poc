@@ -6,7 +6,7 @@ import org.jooq.meta.jaxb.MatchersTableType
 buildscript {
     configurations["classpath"].resolutionStrategy.eachDependency {
         if (requested.group == "org.jooq") {
-            useVersion("3.15.11")
+            useVersion("3.17.2")
         }
     }
 }
@@ -19,7 +19,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("io.micronaut.application") version "3.5.1"
     id("io.micronaut.test-resources") version "3.5.1"
-    id("nu.studer.jooq") version "6.0.1"
+    id("nu.studer.jooq") version "7.1.1"
 }
 
 version = "0.1"
@@ -43,6 +43,8 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.7")
     implementation("io.micronaut.sql:micronaut-jooq")
     implementation("jakarta.annotation:jakarta.annotation-api")
+    implementation("jakarta.validation:jakarta.validation-api:3.0.2") // You have to define this implicitly because jOOQ relies on them since 3.17.*
+    implementation("jakarta.persistence:jakarta.persistence-api:3.1.0") // You have to define this implicitly because jOOQ relies on them since 3.17.*
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
     runtimeOnly("ch.qos.logback:logback-classic")
@@ -59,18 +61,18 @@ application {
     mainClass.set("com.akobor.ApplicationKt")
 }
 java {
-    sourceCompatibility = JavaVersion.toVersion("11")
+    sourceCompatibility = JavaVersion.toVersion("17")
 }
 
 tasks {
     compileKotlin {
         kotlinOptions {
-            jvmTarget = "11"
+            jvmTarget = "17"
         }
     }
     compileTestKotlin {
         kotlinOptions {
-            jvmTarget = "11"
+            jvmTarget = "17"
         }
     }
 }

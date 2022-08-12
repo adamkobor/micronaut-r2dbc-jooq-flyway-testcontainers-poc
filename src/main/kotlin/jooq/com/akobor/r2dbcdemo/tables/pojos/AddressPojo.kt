@@ -4,17 +4,17 @@
 package com.akobor.r2dbcdemo.tables.pojos
 
 
-import java.io.Serializable
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Index
+import jakarta.persistence.Table
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Size
 
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.Index
-import javax.persistence.Table
-import javax.validation.constraints.NotNull
-import javax.validation.constraints.Size
+import java.io.Serializable
 
 
 /**
@@ -42,6 +42,44 @@ data class AddressPojo(
     @get:Size(max = 255)
     val fullAddress: String? = null
 ): Serializable {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other)
+            return true
+        if (other === null)
+            return false
+        if (this::class != other::class)
+            return false
+        val o: AddressPojo = other as AddressPojo
+        if (this.id === null) {
+            if (o.id !== null)
+                return false
+        }
+        else if (this.id != o.id)
+            return false
+        if (this.accountId === null) {
+            if (o.accountId !== null)
+                return false
+        }
+        else if (this.accountId != o.accountId)
+            return false
+        if (this.fullAddress === null) {
+            if (o.fullAddress !== null)
+                return false
+        }
+        else if (this.fullAddress != o.fullAddress)
+            return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        val prime = 31
+        var result = 1
+        result = prime * result + (if (this.id === null) 0 else this.id.hashCode())
+        result = prime * result + (if (this.accountId === null) 0 else this.accountId.hashCode())
+        result = prime * result + (if (this.fullAddress === null) 0 else this.fullAddress.hashCode())
+        return result
+    }
 
     override fun toString(): String {
         val sb = StringBuilder("AddressPojo (")

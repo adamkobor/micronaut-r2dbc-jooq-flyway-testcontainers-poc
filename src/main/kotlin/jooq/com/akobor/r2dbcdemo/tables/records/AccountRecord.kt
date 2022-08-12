@@ -7,16 +7,16 @@ package com.akobor.r2dbcdemo.tables.records
 import com.akobor.r2dbcdemo.tables.Account
 import com.akobor.r2dbcdemo.tables.pojos.AccountPojo
 
-import java.time.LocalDateTime
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Size
 
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
-import javax.persistence.Table
-import javax.validation.constraints.NotNull
-import javax.validation.constraints.Size
+import java.time.LocalDateTime
 
 import org.jooq.Field
 import org.jooq.Record1
@@ -39,19 +39,19 @@ open class AccountRecord() : UpdatableRecordImpl<AccountRecord>(Account.ACCOUNT)
     @get:Id
     @get:GeneratedValue(strategy = GenerationType.IDENTITY)
     @get:Column(name = "id", nullable = false, precision = 64)
-    var id: Long?
+    open var id: Long?
         set(value): Unit = set(0, value)
         get(): Long? = get(0) as Long?
 
     @get:Column(name = "name", nullable = false, length = 255)
     @get:NotNull
     @get:Size(max = 255)
-    var name: String?
+    open var name: String?
         set(value): Unit = set(1, value)
         get(): String? = get(1) as String?
 
     @get:Column(name = "deleted_at", precision = 6)
-    var deletedAt: LocalDateTime?
+    open var deletedAt: LocalDateTime?
         set(value): Unit = set(2, value)
         get(): LocalDateTime? = get(2) as LocalDateTime?
 
