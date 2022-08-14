@@ -11,4 +11,4 @@ This example uses:
 - Flyway 8.5.x
 - Testcontainers (to be able to test the integration E2E)
 
-You can read a detailed explanation about this PoC on my blog: 
+You can read a detailed explanation about this PoC on my blog: [https://akobor.me/posts/wiring-up-micronaut-jooq-flyway-and-testcontainers-with-r2dbc](https://akobor.me/posts/wiring-up-micronaut-jooq-flyway-and-testcontainers-with-r2dbc)

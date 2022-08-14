@@ -86,8 +86,8 @@ micronaut {
     }
 }
 
-val dbUrl = "jdbc:postgresql://localhost:5432/postgres"
-val dbUser = "postgres"
+val dbUrl = System.getenv("DB_URL") ?: "jdbc:postgresql://localhost:5432/postgres"
+val dbUser = System.getenv("DB_USER") ?: "postgres"
 val dbPassword = System.getenv("DB_PASSWORD") ?: "pass"
 val dbSchema = "r2dbc-poc"
 val dbDriver = "org.postgresql.Driver"
