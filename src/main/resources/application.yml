@@ -20,7 +20,6 @@ r2dbc:
       username: postgres
       password: ${DB_PASSWORD:`pass`}
 jackson:
-  bean-introspection-module: true
   serialization-inclusion: always
   serialization:
     - WRITE_DATES_AS_TIMESTAMPS: false

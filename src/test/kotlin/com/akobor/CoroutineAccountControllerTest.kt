@@ -12,11 +12,14 @@ import io.micronaut.test.extensions.kotest.annotation.MicronautTest
 import java.time.LocalDateTime
 
 @MicronautTest
-class AccountControllerTest(accountClient: AccountClient, accountRepository: AccountRepository) : DatabaseStringSpec({
+class CoroutineAccountControllerTest(
+    accountClient: CoroutineAccountClient,
+    accountRepository: CoroutineAccountRepository
+) : DatabaseStringSpec({
 
     "getting all the accounts from the DB should work E2E" {
 
-        val accounts = accountClient.getAccounts().collectList().block()!!
+        val accounts = accountClient.getAccounts()
 
         accounts shouldHaveSize 3
         accounts.forOne { it.name shouldBe "Adam" }
@@ -26,12 +29,19 @@ class AccountControllerTest(accountClient: AccountClient, accountRepository: Acc
 
     "getting one specific account from the DB should work E2E" {
 
-        val account = accountClient.getAccountById(1).block()!!
+        val account = accountClient.getAccountById(1)!!
 
         account.id shouldBe 1
         account.deletedAt shouldBe null
         account.fullAddress shouldBe "Some Street in some city 12"
         account.name shouldBe "John"
+    }
+
+    "getting a non-existent account from the DB should work E2E" {
+
+        val account = accountClient.getAccountById(11242)
+
+        account shouldBe null
     }
 
     "creating a new account should work E2E" {
@@ -42,22 +52,24 @@ class AccountControllerTest(accountClient: AccountClient, accountRepository: Acc
             deletedAt = LocalDateTime.now()
         )
         val accountWithoutAddress = AccountCreateDto(
-            name = "Test Person 1",
+            name = "Test Person 2",
             fullAddress = null,
             deletedAt = null
         )
-        val createdAccountWithAddress = accountClient.createAccount(accountWithAddress).block()!!
-        val createdAccountWithoutAddress = accountClient.createAccount(accountWithoutAddress).block()!!
+        val createdAccountWithAddress = accountClient.createAccount(accountWithAddress)!!
+        val createdAccountWithoutAddress = accountClient.createAccount(accountWithoutAddress)!!
 
-        createdAccountWithAddress.id shouldNotBe null
         createdAccountWithAddress.name shouldBe accountWithAddress.name
         createdAccountWithAddress.fullAddress shouldBe accountWithAddress.fullAddress
         createdAccountWithAddress.deletedAt shouldBe accountWithAddress.deletedAt
 
-        createdAccountWithoutAddress.id shouldNotBe null
         createdAccountWithoutAddress.name shouldBe accountWithoutAddress.name
         createdAccountWithoutAddress.fullAddress shouldBe null
         createdAccountWithoutAddress.deletedAt shouldBe null
+
+        val accountsInTheDb = accountRepository.getAccounts()
+        accountsInTheDb.forOne { it.name shouldBe accountWithAddress.name }
+        accountsInTheDb.forOne { it.name shouldBe accountWithoutAddress.name }
     }
 
     "if something bad happens during an account creation, it should be rolled back " {
@@ -68,13 +80,13 @@ class AccountControllerTest(accountClient: AccountClient, accountRepository: Acc
             deletedAt = LocalDateTime.now()
         )
 
-        shouldThrow<HttpClientResponseException> { accountClient.createAccount(accountToCreate).block() }
+        shouldThrow<HttpClientResponseException> { accountClient.createAccount(accountToCreate) }
 
-        val accountsInTheDb = accountRepository.getAccounts().collectList().block()!!
+        val accountsInTheDb = accountRepository.getAccounts()
 
         accountsInTheDb.forNone { it.name shouldBe accountToCreate.name }
     }
 })
 
-@Client("/accounts")
-interface AccountClient : AccountOperations
+@Client("/coroutine/accounts")
+interface CoroutineAccountClient : CoroutineAccountOperations

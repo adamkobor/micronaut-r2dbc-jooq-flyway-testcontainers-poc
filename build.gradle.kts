@@ -41,6 +41,7 @@ dependencies {
     implementation("io.micronaut.reactor:micronaut-reactor-http-client")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.7")
     implementation("io.micronaut.sql:micronaut-jooq")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
     implementation("jakarta.annotation:jakarta.annotation-api")
     implementation("jakarta.validation:jakarta.validation-api:3.0.2") // You have to define this implicitly because jOOQ relies on them since 3.17.*
     implementation("jakarta.persistence:jakarta.persistence-api:3.1.0") // You have to define this implicitly because jOOQ relies on them since 3.17.*

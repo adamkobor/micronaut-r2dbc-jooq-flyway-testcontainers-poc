@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
 @Singleton
-class AccountRepository(private val ctx: DSLContext) {
+class ReactiveAccountRepository(private val ctx: DSLContext) {
 
     fun getAccounts(): Flux<AccountDetailsWithAddress> =
         Flux.from(ctx.getAccountQuery()).map { r -> r.into(AccountDetailsWithAddress::class.java) }

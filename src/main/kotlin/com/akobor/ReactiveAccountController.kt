@@ -7,8 +7,8 @@ import io.micronaut.http.annotation.Post
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-@Controller("/accounts")
-class AccountController(private val accountRepository: AccountRepository) : AccountOperations {
+@Controller("/reactive/accounts")
+class ReactiveAccountController(private val accountRepository: ReactiveAccountRepository) : ReactiveAccountOperations {
 
     override fun getAccounts(): Flux<AccountDetailsWithAddress> = accountRepository.getAccounts()
 
@@ -19,7 +19,7 @@ class AccountController(private val accountRepository: AccountRepository) : Acco
         accountRepository.insertAccountWithAddress(createDto)
 }
 
-interface AccountOperations {
+interface ReactiveAccountOperations {
 
     @Get("/")
     fun getAccounts(): Flux<AccountDetailsWithAddress>
