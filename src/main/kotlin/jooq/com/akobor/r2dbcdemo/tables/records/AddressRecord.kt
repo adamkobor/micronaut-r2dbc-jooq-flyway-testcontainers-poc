@@ -40,12 +40,12 @@ open class AddressRecord() : UpdatableRecordImpl<AddressRecord>(Address.ADDRESS)
 
     @get:Id
     @get:GeneratedValue(strategy = GenerationType.IDENTITY)
-    @get:Column(name = "id", nullable = false, precision = 64)
+    @get:Column(name = "id", nullable = false)
     open var id: Long?
         set(value): Unit = set(0, value)
         get(): Long? = get(0) as Long?
 
-    @get:Column(name = "account_id", nullable = false, precision = 64)
+    @get:Column(name = "account_id", nullable = false)
     @get:NotNull
     open var accountId: Long?
         set(value): Unit = set(1, value)

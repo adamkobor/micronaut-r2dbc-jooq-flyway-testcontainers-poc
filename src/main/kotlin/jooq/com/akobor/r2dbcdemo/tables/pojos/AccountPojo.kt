@@ -29,7 +29,7 @@ import java.time.LocalDateTime
 data class AccountPojo(
     @get:Id
     @get:GeneratedValue(strategy = GenerationType.IDENTITY)
-    @get:Column(name = "id", nullable = false, precision = 64)
+    @get:Column(name = "id", nullable = false)
     val id: Long? = null,
     @get:Column(name = "name", nullable = false, length = 255)
     @get:NotNull

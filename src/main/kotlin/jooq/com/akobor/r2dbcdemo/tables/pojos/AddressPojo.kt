@@ -32,9 +32,9 @@ import java.io.Serializable
 data class AddressPojo(
     @get:Id
     @get:GeneratedValue(strategy = GenerationType.IDENTITY)
-    @get:Column(name = "id", nullable = false, precision = 64)
+    @get:Column(name = "id", nullable = false)
     val id: Long? = null,
-    @get:Column(name = "account_id", nullable = false, precision = 64)
+    @get:Column(name = "account_id", nullable = false)
     @get:NotNull
     val accountId: Long? = null,
     @get:Column(name = "full_address", nullable = false, length = 255)

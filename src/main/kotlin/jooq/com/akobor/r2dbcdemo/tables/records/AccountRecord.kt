@@ -38,7 +38,7 @@ open class AccountRecord() : UpdatableRecordImpl<AccountRecord>(Account.ACCOUNT)
 
     @get:Id
     @get:GeneratedValue(strategy = GenerationType.IDENTITY)
-    @get:Column(name = "id", nullable = false, precision = 64)
+    @get:Column(name = "id", nullable = false)
     open var id: Long?
         set(value): Unit = set(0, value)
         get(): Long? = get(0) as Long?

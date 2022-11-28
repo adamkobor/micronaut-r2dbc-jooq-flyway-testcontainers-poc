@@ -4,7 +4,7 @@ This PoC is about integrating jOOQ into Micronaut by using R2DBC and Reactor, wh
 
 This example uses:
 
-- Micronaut 3.6.x (with the official `micronaut-r2dbc` module)
+- Micronaut 3.7.x (with the official `micronaut-r2dbc` module)
 - PostgreSQL 13 (with the official `r2dbc-postgresql` driver)
 - Reactor 3.x.x
 - jOOQ 3.17.* (and Etienne Studer's great Gradle plugin for jOOQ)

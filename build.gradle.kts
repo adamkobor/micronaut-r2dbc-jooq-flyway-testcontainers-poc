@@ -6,19 +6,19 @@ import org.jooq.meta.jaxb.MatchersTableType
 buildscript {
     configurations["classpath"].resolutionStrategy.eachDependency {
         if (requested.group == "org.jooq") {
-            useVersion("3.17.2")
+            useVersion("3.17.5")
         }
     }
 }
 
 plugins {
-    val kotlinVersion = "1.7.10"
+    val kotlinVersion = "1.7.21"
     id("org.jetbrains.kotlin.jvm") version kotlinVersion
     id("org.jetbrains.kotlin.kapt") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
     id("com.github.johnrengelman.shadow") version "7.1.2"
     id("io.micronaut.application") version "3.5.1"
-    id("nu.studer.jooq") version "7.1.1"
+    id("nu.studer.jooq") version "8.0"
 }
 
 version = "0.1"
@@ -51,8 +51,8 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.postgresql:r2dbc-postgresql")
     jooqGenerator("org.postgresql:postgresql:42.3.3")
-    testImplementation("org.testcontainers:postgresql:1.17.3")
-    testImplementation("org.testcontainers:testcontainers:1.17.3")
+    testImplementation("org.testcontainers:postgresql:1.17.6")
+    testImplementation("org.testcontainers:testcontainers:1.17.6")
 }
 
 
