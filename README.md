@@ -1,6 +1,6 @@
 # Micronaut R2DBC + jOOQ + Flyway + Testcontainers PoC
 
-This PoC is about integrating jOOQ into Micronaut by using R2DBC and Reactor, while Flyway is still able to use JDBC to manage schema migrations.
+This PoC is about integrating jOOQ into Micronaut by using R2DBC with reactive streams/Kotlin coroutines, while Flyway is still able to use JDBC to manage schema migrations.
 
 This example uses:
 
