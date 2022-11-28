@@ -16,11 +16,11 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
 // Glue code that needs to be implemented once
-suspend inline fun <reified T : Any, R : Record> fetchIntoList(query: Publisher<R>): List<T> =
-    Flux.from(query).map { r -> r.into(T::class.java) }.toList()
+suspend inline fun <reified T : Any, R : Record> Publisher<R>.fetchInto(): List<T> =
+    Flux.from(this).map { r -> r.into(T::class.java) }.toList()
 
-suspend inline fun <reified T : Any, R : Record> fetchOne(query: Publisher<R>): T? =
-    Mono.from(query).map { r -> r.into(T::class.java) }.awaitFirstOrNull()
+suspend inline fun <reified T : Any, R : Record> Publisher<R>.fetchOneInto(): T? =
+    Mono.from(this).map { r -> r.into(T::class.java) }.awaitFirstOrNull()
 
 suspend fun <T : Any> Flux<T>.toList(): List<T> = asFlow().toList()
 
@@ -33,7 +33,7 @@ suspend fun <R : Record> transactionWithSingleResult(
 @Singleton
 class CoroutineAccountRepository(private val ctx: DSLContext) {
 
-    suspend fun getAccounts(): List<AccountDetailsWithAddress> = fetchIntoList(ctx.getAccountQuery())
+    suspend fun getAccounts(): List<AccountDetailsWithAddress> = ctx.getAccountQuery().fetchInto()
 
     private fun DSLContext.getAccountQuery() =
         select(
@@ -44,9 +44,7 @@ class CoroutineAccountRepository(private val ctx: DSLContext) {
         ).from(ACCOUNT).leftJoin(ADDRESS).on(ADDRESS.ACCOUNT_ID.eq(ACCOUNT.ID))
 
     suspend fun getAccount(accountId: Long, ctx: DSLContext = this.ctx): AccountDetailsWithAddress? =
-        fetchOne(
-            ctx.getAccountQuery().where(ACCOUNT.ID.eq(accountId))
-        )
+        ctx.getAccountQuery().where(ACCOUNT.ID.eq(accountId)).fetchOneInto()
 
     suspend fun insertAccountWithAddress(accountWithAddressDto: AccountCreateDto): AccountDetailsWithAddress? {
         val insertedAccount = transactionWithSingleResult(ctx) { trx ->
