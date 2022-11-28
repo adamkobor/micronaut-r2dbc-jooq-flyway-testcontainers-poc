@@ -3,31 +3,31 @@ package com.akobor
 import com.akobor.r2dbcdemo.tables.Account.Companion.ACCOUNT
 import com.akobor.r2dbcdemo.tables.Address.Companion.ADDRESS
 import jakarta.inject.Singleton
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.reactive.*
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.reactor.asFlux
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.reactivestreams.Publisher
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
 
 // Glue code that needs to be implemented once
 suspend inline fun <reified T : Any, R : Record> Publisher<R>.fetchInto(): List<T> =
     Flux.from(this).map { r -> r.into(T::class.java) }.toList()
 
 suspend inline fun <reified T : Any, R : Record> Publisher<R>.fetchOneInto(): T? =
-    Mono.from(this).map { r -> r.into(T::class.java) }.awaitFirstOrNull()
+    Mono.from(this).map { r -> r.into(T::class.java) }.awaitSingleOrNull()
 
 suspend fun <T : Any> Flux<T>.toList(): List<T> = asFlow().toList()
 
-suspend fun <R : Record> transactionWithSingleResult(
+suspend fun <T : Any> transactionWithSingleResult(
     ctx: DSLContext,
-    transactional: (Configuration) -> Publisher<R>
-): R = Flux.from(ctx.transactionPublisher { trx -> transactional.invoke(trx) }).awaitSingle()
+    transactional: (Configuration) -> Flow<T>
+): T = Flux.from(ctx.transactionPublisher { trx -> transactional.invoke(trx).asFlux() }).awaitSingle()
 
 
 @Singleton
@@ -46,23 +46,24 @@ class CoroutineAccountRepository(private val ctx: DSLContext) {
     suspend fun getAccount(accountId: Long, ctx: DSLContext = this.ctx): AccountDetailsWithAddress? =
         ctx.getAccountQuery().where(ACCOUNT.ID.eq(accountId)).fetchOneInto()
 
-    suspend fun insertAccountWithAddress(accountWithAddressDto: AccountCreateDto): AccountDetailsWithAddress? {
-        val insertedAccount = transactionWithSingleResult(ctx) { trx ->
+    suspend fun insertAccountWithAddress(accountWithAddressDto: AccountCreateDto): AccountDetailsWithAddress {
+        return transactionWithSingleResult(ctx) { trx ->
             trx.dsl()
                 .insertInto(ACCOUNT)
                 .columns(ACCOUNT.NAME, ACCOUNT.DELETED_AT)
                 .values(accountWithAddressDto.name, accountWithAddressDto.deletedAt)
                 .returningResult(ACCOUNT.ID)
-                .toMono()
-                .flatMap { insertedAccount ->
+                .asFlow()
+                .map { insertedAccount ->
                     if (!accountWithAddressDto.fullAddress.isNullOrBlank()) {
                         trx.dsl().insertInto(ADDRESS)
                             .columns(ADDRESS.ACCOUNT_ID, ADDRESS.FULL_ADDRESS)
                             .values(insertedAccount.value1(), accountWithAddressDto.fullAddress)
-                            .returningResult(ADDRESS.ACCOUNT_ID).toMono()
-                    } else insertedAccount.toMono()
+                            .returningResult(ADDRESS.ACCOUNT_ID)
+                            .awaitFirst()
+                    } else insertedAccount
                 }
+                .map { getAccount(it.value1()!!, trx.dsl())!! }
         }
-        return getAccount(insertedAccount.value1()!!)
     }
 }

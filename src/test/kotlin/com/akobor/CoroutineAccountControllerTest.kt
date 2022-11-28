@@ -68,11 +68,32 @@ class CoroutineAccountControllerTest(
         createdAccountWithoutAddress.deletedAt shouldBe null
 
         val accountsInTheDb = accountRepository.getAccounts()
-        accountsInTheDb.forOne { it.name shouldBe accountWithAddress.name }
-        accountsInTheDb.forOne { it.name shouldBe accountWithoutAddress.name }
+        accountsInTheDb.forOne { withAddress ->
+            withAddress.name shouldBe accountWithAddress.name
+            withAddress.fullAddress shouldBe accountWithAddress.fullAddress
+        }
+        accountsInTheDb.forOne { withoutAddress ->
+            withoutAddress.name shouldBe accountWithoutAddress.name
+            withoutAddress.fullAddress shouldBe null
+        }
     }
 
     "if something bad happens during an account creation, it should be rolled back " {
+
+        val accountToCreate = AccountCreateDto(
+            name = "Test Person 1".repeat(100), // We pass a very long string to force a DB related exception,
+            fullAddress = "Some address",
+            deletedAt = LocalDateTime.now()
+        )
+
+        shouldThrow<HttpClientResponseException> { accountClient.createAccount(accountToCreate) }
+
+        val accountsInTheDb = accountRepository.getAccounts()
+
+        accountsInTheDb.forNone { it.name shouldBe accountToCreate.name }
+    }
+
+    "if something bad happens during an address creation, it should be rolled back " {
 
         val accountToCreate = AccountCreateDto(
             name = "Test Person 1",
